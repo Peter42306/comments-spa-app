@@ -1,96 +1,87 @@
-import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import './CommentsList.css';
-import { fetchComments } from '../../api';
+import PropTypes from 'prop-types';
 
-const CommentsList = () => {
+const CommentsList = ({items, onReply}) => {  
+  
+  const formatDate = (utcString) => {
+    const date = new Date(utcString);
 
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [page, setPage] = useState(1);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
 
-  const loadPage = async (pageToLoad) => {
-    try {
-      setLoading(true);
-      setError(null);
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
 
-      const result = await fetchComments(pageToLoad, 25, "createdAt", "desc");
-      setData(result);
-      setPage(result.page);
-    } catch (e) {
-      console.error(e);
-      console("Failed to load comments.")
-    } finally {
-      setLoading(false);
-    }
-  };
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+  }
 
-  useEffect(() => {
-    loadPage(1);
-  },[]);
-
-  const handlePrev = () => {
-    if (page > 1) {
-      loadPage(page - 1);
-    }
-  };
-
-  const handleNext = () => {
-    if(data && page * data.pageSize < data.totalCount){
-      loadPage(page + 1);
-    }
-  };
 
   return(
-  <div className="CommentsList">
-    <div className='mt-4'>
+    <div className='CommentsList'>
       <h4>Comments</h4>
+      
+      <div className="card p-3">  
+        {items.length === 0 && (
+          <p>No comments yet.</p>
+        )}
 
-      {loading && <p>Loading comments...</p>}
-      {error && <div className='alert alert-danger'>{error}</div>}      
+        {items.map((c) => (
+          <div key={c.id} className="mb-3 border-bottom">
 
-      {data && data.items.length === 0 && !loading && (
-        <p>No comments yet</p>
-      )}
+            {/* top row */}
+            <div className="d-flex align-items-center gap-2 mb-2 bg-light">
+              <div
+                className="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center me-2"
+                style={{ width: 32, height: 32, fontSize: 14 }}
+              >
+                {c.userName ? c.userName[0].toUpperCase() : "?"}
+              </div>
 
-      {data && data.items.length > 0 && (
-        <>
-        <table className='table'>
-          <thead>
-            <tr>
-              <th>User</th>
-              <th>Email</th>              
-              <th>Url</th>
-              <th>Created</th>
-              <th>Text</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.items.map((c) => (
-              <tr key={c.id}>
-                <td>{c.userName}</td>
-                <td>{c.email}</td>
-                <td>{c.homePage}</td>
-                <td>{new Date(c.createdAtUtc).toLocaleString()}</td>
-                <td>{c.sanitizedText}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              <div className="semibold">
+                {c.userName}
+              </div>
+              
+              <div className="text-muted">
+                {formatDate(c.createdAtUtc)}
+              </div>
+            </div>
+            
+            {/* text */}
+            <div className='mb-2'>
+              {c.sanitizedText}
+            </div>
 
-        
-        </>
-      )}
-    </div>    
-  </div>
+            <button
+              type='button'
+              className='btn btn-link float-end'
+              onClick={() => onReply && onReply(c)}
+            >
+              Reply
+            </button>
+        </div>
+        ))}
+      </div>
+
+
+      
+
+      
+      <div>Commentsa</div>
+
+    </div>
   );
 
-}
+};
   
 
-CommentsList.propTypes = {};
+CommentsList.propTypes = {
+  items: PropTypes.array.isRequired,
+  onReply: PropTypes.func,
+};
 
-CommentsList.defaultProps = {};
+CommentsList.defaultProps = {
+  onReply:null,
+};
 
 export default CommentsList;
