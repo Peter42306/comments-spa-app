@@ -1,3 +1,47 @@
+
+export async function fetchAttachments(commentId) {
+    const response = await fetch(`/api/comments/${commentId}/attachments`);
+    if (!response.ok) {
+        throw new Error("Failed to load attachments.");
+    }
+
+    return response.json();
+}
+
+export async function uploadAttachment(commentId, file) {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch(`/api/comments/${commentId}/attachments`, {
+        method:"POST",
+        body: formData,
+    });
+
+    if(!response.ok){
+        let message = "Failed to upload attachment.";
+
+        try {
+            const data = await response.json();
+            console.log("Upload attachment error: ", data);
+
+            if(data?.error) {
+                message = data.error;
+            } else if (data?.error) {
+                message = data.detail;
+            } else if (data?.title) {
+                message = data.title;
+            }
+        } catch (e) {
+            console.error("Error parsing upload error: ", e);
+            //TODO:
+        }
+
+        throw new Error(message);
+    }
+
+    return await response.json();
+}
+
 export async function fetchCaptcha() {
     const result = await fetch("/api/Captcha");
     if(!result.ok){
@@ -28,6 +72,16 @@ export async function fetchComments(
     }
 
     return response.json(); // { items, page, pageSize, totalCount }
+}
+
+export async function fetchCommentsTree() {
+    const response = await fetch("/api/Comments/all");
+
+    if(!response.ok){
+        throw new Error("Failed to load comments");
+    }
+
+    return response.json();
 }
 
 export async function createComment(payload) {
