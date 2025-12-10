@@ -349,6 +349,7 @@ function App() {
               onChange={(e) => setUserName(e.target.value)}
               required
               maxLength={50}
+              placeholder='Enter name'
             />
           </div>
 
@@ -361,17 +362,19 @@ function App() {
             onChange={(e) => setEmail(e.target.value)}
             required
             maxLength={100}
+            placeholder='Enter email'
           />
         </div>
 
         <div className='col-12 col-md-4 mb-3'>
-          <label className='form-label'>Home page (optional)</label>
+          <label className='form-label'>Home page</label>
           <input
             className='form-control'
             type='url'
             value={homePage}
             onChange={(e) => setHomePage(e.target.value)}            
             maxLength={200}
+            placeholder='Enter URL (optional)'
           />
         </div>
         </div>
@@ -422,12 +425,14 @@ function App() {
             onChange={(e) => setText(e.target.value)}
             required
             maxLength={4000}
+            placeholder='Enter comment'
           />
+          <small className='form-text text-muted'>Use 1 to 4000 characters</small>
         </div>
 
         <div className='mb-3'>
           <label className='form-label'>
-            Attachment (image or text file)
+            Attachment
           </label>
           <input
             type='file'
@@ -437,36 +442,42 @@ function App() {
               const selected = e.target.files && e.target.files[0];
               setFile(selected || null);
             }}
-          />
-          <div className='form-text'>
-            Please attach JPG / PNG / GIF images or TXT files up to 100 KB.
-          </div>
+          />          
+          <small className='form-text text-muted'>
+            Please attach image (JPG / PNG / GIF) or text (TXT) file up to 100 KB.
+          </small>
         </div>
 
         
 
         {/* CAPTCHA */}
-        <div className="row align-items-center">
+        <div className="row align-items-center">                            
 
-          
-          
           <div className='col-12 col-md-9'>
+
             <div className='d-flex align-items-center justify-content-start'>
-
+              
               <div className='mb-3'>
-            <label className='form-label'>Captcha</label>
-            <input
-              className='form-control'            
-              value={captchaInput}
-              onChange={(e) => setCaptchaInput(e.target.value.toUpperCase())}                        
-              required
-            />
-          </div>
-
+                <label className='form-label'>Captcha</label>
+                <input
+                  className='form-control'            
+                  value={captchaInput}
+                  onChange={(e) => setCaptchaInput(e.target.value.toUpperCase())}                        
+                  required                
+                />
+              </div>
 
               <div>
-                {captchaError && <div className='alert alert-danger'>{captchaError}</div>}
+                <button 
+                  type='button' 
+                  className='btn btn-link mt-3' 
+                  onClick={loadCaptcha}
+                  title='Refresh CAPTCHA'>
+                    <i className='bi bi-arrow-clockwise'></i>
+                </button>
+              </div>          
 
+              <div>                
                 {captcha && (
                   <div className='mt-3'>
                     <img
@@ -476,14 +487,11 @@ function App() {
                     />                
                   </div>
                 )}
-              </div>
-              <div>
-                <button type='button' className='btn btn-secondary' onClick={loadCaptcha}>
-                  Refresh
-                </button>
-              </div>          
+              </div>              
+            
             </div>
-          </div>           
+          
+          </div>
           
           
           <div className='col-12 col-md-3 d-flex justify-content-end'>
@@ -519,6 +527,7 @@ function App() {
       
       
 
+      {captchaError && <div className='alert alert-danger'>{captchaError}</div>}
       {submitError && <div className='alert alert-danger'>{submitError}</div>}
       {submitSuccess && (<div className='alert alert-success'>{submitSuccess}</div>)}
 
