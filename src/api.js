@@ -21,8 +21,7 @@ export async function uploadAttachment(commentId, file) {
         let message = "Failed to upload attachment.";
 
         try {
-            const data = await response.json();
-            console.log("Upload attachment error: ", data);
+            const data = await response.json();            
 
             if(data?.error) {
                 message = data.error;
@@ -31,8 +30,7 @@ export async function uploadAttachment(commentId, file) {
             } else if (data?.title) {
                 message = data.title;
             }
-        } catch (e) {
-            console.error("Error parsing upload error: ", e);
+        } catch (e) {            
             //TODO:
         }
 
@@ -44,11 +42,11 @@ export async function uploadAttachment(commentId, file) {
 
 export async function fetchCaptcha() {
     const result = await fetch("/api/Captcha");
-    if(!result.ok){
-        const text = await result.text();
-        console.error("Captcha error:", result.status, text);
+
+    if(!result.ok){        
         throw new Error("Failed to load captcha");
-    }
+    }    
+
     return result.json();
 }
 
@@ -98,17 +96,7 @@ export async function createComment(payload) {
             let message = "Failed to create comment.";
 
             try {
-                const data = await response.json();
-
-                // TODO: to be deleted
-                console.log("Create comment error response:", data);
-                if(data?.error){
-                    message = data.error;
-                } else if (data?.detail){
-                    message = data.detail;
-                } else if (data?.title){
-                    message = data.title;
-                }
+                const data = await response.json();                
 
                 if (data?.errors) {
                     const allErrors = Object.values(data.errors).flat();
@@ -121,7 +109,7 @@ export async function createComment(payload) {
                 //     message = data.error;
                 // }            
             } catch (e) {
-                console.error("Error paesing error response: ", e)                
+                // TODO:
             }
 
         throw new Error(message);

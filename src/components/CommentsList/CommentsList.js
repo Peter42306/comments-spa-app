@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import './CommentsList.css';
 import PropTypes from 'prop-types';
 
 const CommentsList = ({items, onReply}) => {  
+
+  const [previewImage, setPreviewImage] = useState(null);
   
   const formatDate = (utcString) => {
     const date = new Date(utcString);
@@ -27,10 +30,12 @@ const CommentsList = ({items, onReply}) => {
         className={`mb-3 ${isRoot ? 'border-bottom' : ''}`}
       >
         {/* parent comment, top row */}
-        <div className="d-flex align-items-center gap-2 mb-2 bg-light">
-          <div
+        <div className="d-flex justify-content-between align-items-center gap-2 mb-2 bg-light">
+          
+          <div className='d-flex align-items-center gap-2'>
+            <div
             className="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center me-2"
-            style={{ width: 32, height: 32, fontSize: 14 }}
+            style={{ width: 32, height: 32, fontSize: 18 }}
           >
             {c.userName ? c.userName[0].toUpperCase() : "?"}
           </div>
@@ -42,34 +47,40 @@ const CommentsList = ({items, onReply}) => {
           <div className="text-muted">
             {formatDate(c.createdAtUtc)}
           </div>
+          </div>
+          
 
           <button
           type='button'
           className='btn btn-link float-end'
           onClick={() => onReply(c)}
+          title='Reply'
           >
-          Reply
+          <i className='bi bi-arrow-90deg-left'></i>
           </button>
 
         </div>
             
         {/* text */}
-        <div className='mb-2'>
-          {c.sanitizedText}
+        <div 
+          className='mb-2 comment-text' 
+          dangerouslySetInnerHTML={{__html: c.sanitizedText}}
+        >                  
         </div>
 
         {/* attachment */}
         {c.attachments && c.attachments.length > 0 && (
-          <div>
+          <div className='mb-2'>
             {c.attachments.map(a => (
-              <div>
+              <div key={a.id}>
 
                 {/* image file */}
                 {a.type === 1 && (
                   <img
                     src={a.url}
-                    style={{ maxWidth: "200", borderRadius: 4 }}
+                    style={{ maxWidth: 200, borderRadius: 14, cursor: "pointer" }}
                     alt={a.originalFileName}
+                    onClick={() => setPreviewImage(a.url)}
                   />
                 )}
 
@@ -90,7 +101,7 @@ const CommentsList = ({items, onReply}) => {
           <div className='mt-2'>
             {c.children.map(child => renderComment(child, level + 1))}
           </div>
-        )}
+        )}       
 
       </div>
     );
@@ -98,16 +109,44 @@ const CommentsList = ({items, onReply}) => {
 
 
   return(
-    <div className='CommentsList'>
-      <h4>Comments</h4>
+    <div className='CommentsList'>      
       
-      <div className="card p-3">  
-        {items.length === 0 && (
+      <div className="card p-3">          
+        {/* {items.length === 0 && (
           <p>No comments yet.</p>
-        )}
+        )} */}
 
         {items.map((c) => renderComment(c, 0))}
       </div>     
+
+      {/* Bootstrap Modal for Image preview */}
+      {previewImage && (
+        <div 
+          className="modal-backdrop"
+          onClick={() => setPreviewImage(null)}
+          style={{
+            position: "fixed",
+            top: 0, left: 0, right: 0, bottom: 0,
+             backgroundColor: "rgba(0,0,0,0.8)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",             
+            cursor: "zoom-out"
+          }}
+        >
+          <img 
+            src={previewImage}
+            alt="Preview"
+            style={{
+              maxWidth: "90%",
+              maxHeight: "90%",
+              borderRadius: 8,               
+              transition: "transform 0.3s ease",
+              transform: "scale(2)"
+            }}
+          />
+        </div>
+      )}
 
     </div>
   );
